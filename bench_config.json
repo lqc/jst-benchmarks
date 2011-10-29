@@ -1,0 +1,30 @@
+{
+	"environments": {
+		"nodejs": {
+			"command": "/usr/local/bin/node --expose_gc --flush_code --gc_global {}"
+		}
+	},
+	"syntaxes": {
+		"mustache": {
+			"tests": [
+				"empty",
+				"simple"
+			]
+		}
+	},
+	"engines": {
+		"mustache": {
+			"syntax": "mustache",
+			"lib": "{basedir}/external/mustache/lib/mustache.js",
+			"renderer": "lib.to_html(text, ctx);"
+		},
+		"handlebars": {
+			"syntax": "mustache",
+			"lib": "{basedir}/external/handlebars/lib/handlebars.js",
+			"renderer": "text();",
+			"loader": "return lib.compile(loadTemplate(path));"
+		}
+	},
+	"main_runner": "{basedir}/js/run_bench.js",
+	"inputdir": "{basedir}/inputs/"
+}

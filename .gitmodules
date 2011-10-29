@@ -1,3 +1,9 @@
 [submodule "external/handlebars"]
 	path = external/handlebars
 	url = git://github.com/wycats/handlebars.js.git
+[submodule "external/mustache"]
+	path = external/mustache
+	url = git://github.com/janl/mustache.js.git
+[submodule "external/jquery"]
+	path = external/jquery
+	url = git://github.com/jquery/jquery.git

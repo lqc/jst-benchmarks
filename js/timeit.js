@@ -1,7 +1,7 @@
-Handlebars = require("./external/handlebars/lib/handlebars");
+microtime = require("microtime");
 
 function getTimestamp() {
-	return +new Date();
+	return microtime.now();
 };
 
 function compileInner(setup, stmt) {
@@ -20,16 +20,22 @@ function Timer(stmt, setup, ctx, timer) {
 };
 
 Timer.prototype.timeit = function timeit(number) {
-	return this.inner(number, this.timer, this.ctx);
+	return this.inner(number || 1000000, this.timer, this.ctx);
 };
 
 Timer.prototype.repeat = function repeat(repeat, number) {
 	var results = [], i;
-	for(i=repeat; i; i--) {
+	for(i=repeat || 5; i; i--) {
 		results.push(this.timeit(number));
 	};
 	return results;
 };
 
+function median(arr) {
+	arr.sort();
+	return arr[Math.floor(arr.length/2)];
+};
+
 /* export the timer */
 exports.Timer = Timer;
+exports.median = median;
