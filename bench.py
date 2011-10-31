@@ -25,9 +25,13 @@ class Benchmarker(object):
         return data
 
     def get_vm(self, name):
+        if not isinstance(name, basestring):
+            return name
         return self._config["environments"][name]
 
     def get_engine(self, name):
+        if not isinstance(name, basestring):
+            return name
         return self._config["engines"][name]
     
     @property
@@ -38,17 +42,28 @@ class Benchmarker(object):
     def _runner(self):
         return self._config["main_runner"].format(basedir=self._basedir)
     
-    def run_all(self):
-        for vm in self._config["environments"]:
-            for engine in self._config["engines"].values():
-                for test in self._config["syntaxes"][engine["syntax"]]["tests"]:
-                    print self.run(vm, engine, test)
+    def run_engine(self, vm_name, engine_name):
+        vm = self.get_vm(vm_name)
+        engine = self.get_engine(engine_name)
+        results = []
+        suite = {
+            "engine": engine_name,
+            "results": results
+        }
+        for test in self._config["syntaxes"][engine["syntax"]]["tests"]:
+            results.append(self.run(vm, engine, test))
+        return suite
+    
+    def run_all(self, vm):
+        suite = []
+        vm = self.get_vm(vm)
+        for engine in self._config["engines"].keys():
+            suite.append(self.run_engine(vm, engine))
+        return suite
 
-    def run(self, vm, engine, name):
-        if isinstance(vm, basestring):
-            vm = self.get_vm(vm)
-        if isinstance(engine, basestring):
-            engine = self.get_engine(engine)
+    def run(self, vm_name, engine_name, name):
+        vm = self.get_vm(vm_name)
+        engine = self.get_engine(engine_name)
 
         cmd = vm["command"].format(self._runner)
         cmd = shlex.split(cmd.encode('ascii'))        
@@ -61,7 +76,11 @@ class Benchmarker(object):
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE) 
-        in_ = json.dumps({"benchmark": bench_path, "engine": engine, "basedir": self._basedir, "inputdir": self._inputdir})
+        in_ = json.dumps({"benchmark": name, 
+                          "path": bench_path, 
+                          "engine": engine, 
+                          "basedir": self._basedir, 
+                          "inputdir": self._inputdir})
         out, err = process.communicate(in_)
         if err:
             logger.warn("Benchmark could have errors")
@@ -71,7 +90,7 @@ class Benchmarker(object):
 if __name__ == '__main__':
     basedir = os.path.abspath(os.path.dirname(__file__))
     b = Benchmarker(basedir)
-    b.run_all()
-    b.run("nodejs", "mustache", "empty")
+    print >> sys.stdout, json.dumps(b.run_all("nodejs"), indent=2)
+    
     
     

@@ -25,22 +25,22 @@ function main(input) {
 	 	);
 	};
 	
-	function run_benchmark(name, runner, loader, lib) {
+	function run_benchmark(input) {
+		var runner = new Function("lib", "text", "ctx", input.engine.renderer);
+		var loader = new Function("lib", "path", "loadTemplate", input.engine.loader || "return loadTemplate(path);");
+		var lib = require(input.engine.lib)
 		var i, p, result, all_results = [];
 		var M = 9, N = 500000;
-		result = _runner(name, {}, runner, loader, lib).repeat(M, N);
+		result = _runner(input.path, {}, runner, loader, lib).repeat(M, N);
 		return {
-			"name": name,
+			"name": input.benchmark,
 			"times": result,
 			"runs_per_sample": N,
 			"runs_per_second": Math.round((N * 1000000)/ Math.min.apply(this, result))
 		};
 	};
 	
-	return run_benchmark(input.benchmark, 
-		new Function("lib", "text", "ctx", input.engine.renderer),
-		new Function("lib", "path", "loadTemplate", input.engine.loader || "return loadTemplate(path);"),
-		require(input.engine.lib)) 
+	return run_benchmark(input);
 };
 
 var in_ = '';

@@ -21,7 +21,7 @@
 		"handlebars": {
 			"syntax": "mustache",
 			"lib": "{basedir}/external/handlebars/lib/handlebars.js",
-			"renderer": "text();",
+			"renderer": "text(ctx);",
 			"loader": "return lib.compile(loadTemplate(path));"
 		}
 	},
