@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Benchmark runner</title>
+	<script type="application/javascript" src="/js/jquery.min.js"></script>
+	<script type="application/javascript" src="/js/handlebars.js"></script>
+	<script type="application/javascript" src="/runners/browser/runner.js"></script>
+	<style type="text/css">
+		#console {
+			position: fixed;
+			font-family: monospace;
+			border-right: 2px solid gray;
+			background-color: black;
+			color: white;
+			
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			width: 70%;
+			padding: 4px;
+			overflow: scroll;
+		}
+		
+		#console > * {
+			margin: 2px 0px;
+			float: left;
+			clear: left;
+		}
+		
+		#console > *.ongoing + * {
+			clear: none;
+			margin-left: 1em;
+		}
+		
+		#console > *.success {
+			color: green;
+		}
+		
+		#console > *.error {
+			color: red;
+		}
+		
+		#controlpanel {
+			position: fixed;
+			top: 0px;
+			bottom: 0px;
+			right: 0px;
+			left: 71%;
+		}
+	</style>
+<script id="panel-template" type="text/x-handlebars-template">
+	{{#eachKV engines}}
+	<p>
+		<label><input name="engine[]" checked="checked" type="checkbox" value="{{ key }}">{{ key }}</label>
+	</p>
+	{{/eachKV}}
+	<button type="button" id="run_button">Run benchmark</button>
+</script>
+</head>
+
+<body>
+	<div id="console"></div>
+	<div id="controlpanel"></div>
+</body>
+</html>

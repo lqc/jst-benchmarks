@@ -1,0 +1,10 @@
+<table>
+	<% _.each(rows, function(e) { %> 
+	<tr>
+		<% _.each(e, function(col) { %>
+			<td><%- col %></td>
+		<% }); %>
+	</tr>
+	<% }); %>
+<table>
+

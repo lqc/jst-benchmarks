@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>TASK</title>
+		<script type="text/javascript" src="/runners/timeit.js"></script>
+		<script type="text/javascript">
+			function log() {
+				window.parent.postMessage({
+					"type": "log",
+					"message": Array.prototype.slice.call(arguments)
+				}, window.parent.location.origin);
+			};
+			
+			function post_result(task, result) {
+				task.source.postMessage({
+					"type" : "done",
+					"taskid" : task.taskid,
+					"result" : result
+				}, window.parent.location.origin);
+			};
+
+			function loadResource(path) {
+				var client = new XMLHttpRequest(), res;
+				client.open("GET", path, false);
+				client.send();
+				return client.responseText;
+			};
+			
+			var loadTemplate = loadResource;
+			
+			function loadLibrary(url) {
+				var basedir = "../..", module = {};
+				if(url[0] === "{") {
+					url = basedir + url.slice(9);
+				};				
+				(new Function("exports", loadResource(url)))(module);
+				return module;
+			};
+
+			function _runner(path, ctx, runner, loader, libs) {
+				return new TimeIt("_run(_libs, _tmplt, _ctx);", "var _libs = ctx.libs, _run = ctx.runner, _ctx = ctx.bench_ctx;" + "var _tmplt = ctx.loader(_libs, ctx.path, ctx.loadTemplate);", {
+					"runner" : runner,
+					"loader" : loader,
+					"libs" : libs,
+					"path" : path,
+					"bench_ctx" : ctx,
+					"loadTemplate" : loadTemplate,
+				});
+			};
+
+			function run_benchmark(input) {
+				var i, p, result, rps, all_results = [], libs;
+				var M = input.repeats || 5, N = input.run_length || 10000;
+				var runner = new Function("libs", "text", "ctx", input.engine.renderer);
+				var loader = new Function("libs", "path", "loadTemplate", input.engine.loader || "return loadTemplate(path);");
+				
+				/* load all the libs.. now. */
+				libs = input.engine.libs.map(loadLibrary);
+				
+				/* run the benchmark */
+				result = _runner(input.path, input.context, runner, loader, libs).repeat(M, N);
+				
+				/* do some math */
+				rps = Math.min.apply(this, result.map(function(e) {
+					return e.delta / Math.pow(10, e.precision);
+				}));
+				rps = Math.round(N / rps);
+				
+				/* result */
+				input.source.postMessage({
+					"taskid": input.taskid,
+					"type": "done",
+					"engine_name": input.engine_name,
+					"benchmark": input.benchmark,
+					"times" : result,
+					"runs_per_sample" : N,
+					"runs_per_second" : rps
+				}, window.parent.location.origin);
+			};
+
+			window.addEventListener("message", function(evt) {
+				var task = evt.data;
+				task.source = evt.source;
+				try {
+					run_benchmark(task);
+				} catch(e) {
+					task.source.postMessage({
+						"taskid": task.taskid,
+						"type": "done",
+						"error": e.toString()
+					}, window.parent.location.origin);
+				};
+			}, false);
+			
+			window.parent.postMessage({
+				"type" : "ready"
+			}, window.parent.location.origin);
+
+		</script>
+	</head>
+	<body></body>
+</html>

@@ -2,7 +2,7 @@ jQuery(document).ready(function($) {
 	var reader = new FileReader();
 	
 	function format_data_by_benchmark(suite) {
-		var i, j, sample, result;
+		var i, j, sample, result, times, value;
 		var samples = [];
 		for(i=0; i < suite.length; i++) {
 			var sample = suite[i];
@@ -13,10 +13,14 @@ jQuery(document).ready(function($) {
 				"data": data
 			});
 			for(j=0; j < sample.results.length; j++) {
-				var times = sample.results[j];
-				data.push([1+i+(suite.length+1)*j, times.runs_per_second/1000]);	
+				times = sample.results[j];
+				value = times.runs_per_second;
+				// normalize vs. first sample
+				value = value / suite[0].results[j].runs_per_second;
+				data.push([1+i+(suite.length+1)*j, value]);	
 			};
 		};
+		
 		return samples;
 	};
 	

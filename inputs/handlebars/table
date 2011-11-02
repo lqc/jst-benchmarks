@@ -1,0 +1,7 @@
+<table>
+	{{#each rows}}
+	<tr>
+		{{#each this}}<td>{{ this }}</td>{{/each}}
+	</tr>
+	{{/each}}
+<table>

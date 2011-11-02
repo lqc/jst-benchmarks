@@ -1,30 +1,71 @@
 {
+	"inputdir": "{basedir}/inputs/",
 	"environments": {
 		"nodejs": {
-			"command": "/usr/local/bin/node --expose_gc --flush_code --gc_global {}"
+			"command": "/usr/local/bin/node --expose_gc --flush_code --gc_global {basedir}/runners/cli/node.js"
 		}
 	},
 	"syntaxes": {
 		"mustache": {
 			"tests": [
 				"empty",
-				"simple"
+				["variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["raw_variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["table", {"rows": [["one", "two", "three"], ["a", "b", "c"], [0, 1, 2]]}]
+			]
+		},
+		"handlebars": {
+			"tests": [
+				"empty",
+				["variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["raw_variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["table", {"rows": [["one", "two", "three"], ["a", "b", "c"], [0, 1, 2]]}]
+			]
+		},
+		"underscore": {
+			"tests": [
+				"empty",
+				["variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["raw_variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}],
+				["table", {"rows": [["one", "two", "three"], ["a", "b", "c"], [0, 1, 2]]}]
+			]
+		},
+		"nano": {
+			"tests": [
+				"empty",
+				["raw_variables", {"variable01": 0, "variable02": 1, "variable03": 2, "variable04": 3, "variable05": 4}]
 			]
 		}
 	},
 	"engines": {
 		"mustache": {
 			"syntax": "mustache",
-			"lib": "{basedir}/external/mustache/lib/mustache.js",
-			"renderer": "lib.to_html(text, ctx);"
+			"libs": ["{basedir}/external/mustache/lib/mustache.js"],
+			"renderer": "libs[0].to_html(text, ctx);"
+		},
+		"mustache_inline": {
+			"syntax": "mustache",
+			"libs": ["{basedir}/external/mustache/lib/mustache.js"],
+			"renderer": "text(ctx);",
+			"loader": "var _render = libs[0].to_html, _text = loadTemplate(path); return function(ctx) { return _render(_text, ctx); };"
 		},
 		"handlebars": {
-			"syntax": "mustache",
-			"lib": "{basedir}/external/handlebars/lib/handlebars.js",
+			"syntax": "handlebars",
+			"libs": ["{basedir}/external/handlebars/lib/handlebars.js"],
 			"renderer": "text(ctx);",
-			"loader": "return lib.compile(loadTemplate(path));"
+			"loader": "return libs[0].compile(loadTemplate(path));"
+		},
+		"underscore": {
+			"syntax": "underscore",
+			"libs": ["{basedir}/external/underscore/underscore.js"],
+			"renderer": "text(ctx);",
+			"loader": "return libs[0]._.template(loadTemplate(path));"
+		},
+		"nano": {
+			"syntax": "nano",
+			"libs": ["{basedir}/js/nano.js"],
+			"renderer": "_render(text, ctx);",
+			"loader": "var _render = libs[0].render;"
 		}
-	},
-	"main_runner": "{basedir}/js/run_bench.js",
-	"inputdir": "{basedir}/inputs/"
+	}
 }

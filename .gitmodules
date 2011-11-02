@@ -7,3 +7,9 @@
 [submodule "external/jquery"]
 	path = external/jquery
 	url = git://github.com/jquery/jquery.git
+[submodule "external/jqote2"]
+	path = external/jqote2
+	url = git://github.com/aefxx/jQote2.git
+[submodule "external/underscore"]
+	path = external/underscore
+	url = git://github.com/documentcloud/underscore.git
